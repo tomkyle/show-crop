@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+# See http://www.exiv2.org/tags-xmp-crs.html
+
+# ======================================
+# Runtime Environment
+# ======================================
+
+set -o errexit  # Exit if any statement returns a non-true return value.
+set -o nounset  # Exit if trying to use an uninitialised variable
+set -o pipefail # Pipelines produce failure return code if any command errors.
+# set -o xtrace
+
+readonly SCRIPT_NAME=$(basename "${0}")
+
+
+# --------------------------------------
+# Output and formatting stuff
+# --------------------------------------
+
+readonly C_RED='\033[0;31m'
+readonly C_BLUE='\033[1;34m'
+readonly C_ORANGE=$(tput setaf 3)
+readonly NC='\033[0m' # No Color
+
+
+# Error message and error exit, redirecting stdout to stderr
+function e_error {
+    echo -e >&2 "${C_RED}Error: ${*}${NC}";
+    exit 1;
+}
+
+
+function e_warning {
+  echo -e "${C_ORANGE}Warning: ${*}${NC}"
+}
+
+function e_info {
+  echo -e "${C_BLUE}${*}${NC}"
+}
+
+
+# --------------------------------------
+# Requirements
+# --------------------------------------
+
+# Check if given command is installed, exit otherwise
+# Usage: require <command>
+function require  {
+    command -v "${1}" >/dev/null 2>&1 || e_error "$(printf "Program '%s' required, but it's not installed" "${1}")"
+}
+require exiftool
+
+
+# ---------------------------------------
+# Useful links
+# ---------------------------------------
+function showLinkList {
+	echo;
+	echo "See also:"
+	echo "[1] Exiftool: XMP crs Tags"
+	echo "    <http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/XMP.html#crs>"
+	echo "[2] Exiv2 Metadata reference tables: Camera Raw Schema"
+	echo "    <http://www.exiv2.org/tags-xmp-crs.html>"
+}
+
+
+# ---------------------------------------
+# Print short help if no arguments
+# ---------------------------------------
+if [ "$#" -eq 0 ]; then
+    printf "Usage: %s <inputfile>\n" "${SCRIPT_NAME}"
+	showLinkList
+    exit 1
+fi
+
+
+# ---------------------------------------
+# main
+#
+# Usage:
+#   main input_file [ input_files ... ]
+# ---------------------------------------
+
+function main {
+
+	INPUT_FILES=("${@}")
+
+	for INPUT_FILE in "${INPUT_FILES[@]}"; do
+		echo;
+
+		HAS_CROP=$(exiftool -s -s -s -HasCrop "${INPUT_FILE}")
+
+		if [ "${HAS_CROP}" != "True" ]; then
+			e_warning "$(printf "Image '%s' has no CRS Crop Data.\n" "${INPUT_FILE}")"
+			continue
+		fi;
+
+		e_info "${INPUT_FILE}"
+		printf "HasCrop: %s\n"    "${HAS_CROP}"
+		printf "CropTop: %s\n"    "$(exiftool -s -s -s -CropTop "${INPUT_FILE}")"
+		printf "CropLeft: %s\n"   "$(exiftool -s -s -s -CropLeft "${INPUT_FILE}")"
+		printf "CropBottom: %s\n" "$(exiftool -s -s -s -CropBottom "${INPUT_FILE}")"
+		printf "CropRight: %s\n"  "$(exiftool -s -s -s -CropRight "${INPUT_FILE}")"
+		printf "CropAngle: %s\n"  "$(exiftool -s -s -s -CropAngle "${INPUT_FILE}")"
+		printf "CropWidth: %s\n"  "$(exiftool -s -s -s -CropWidth "${INPUT_FILE}")"
+		printf "CropHeight: %s\n" "$(exiftool -s -s -s -CropHeight "${INPUT_FILE}")"
+		printf "CropUnits: %s\n"  "$(exiftool -s -s -s -CropUnits "${INPUT_FILE}")"
+
+	done
+
+	showLinkList
+}
+
+
+# ---------------------------------------
+# GO!
+# ---------------------------------------
+
+main "${@}"
