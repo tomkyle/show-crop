@@ -97,19 +97,19 @@ function main {
         input_file_basename="${input_file_basename##*/}" # remove trailing slash
 		local xmp_file="${input_file_basename}.xmp"
 
-		local test_file="${INPUT_FILE}"
+		local work_file="${INPUT_FILE}"
 
 		# If there is no CRS-Crop data available,
 		# check if there is a XMP sidecar file to work with instead
-		HAS_CROP=$(exiftool -s -s -s -HasCrop "${test_file}")
+		HAS_CROP=$(exiftool -s -s -s -HasCrop "${work_file}")
 		if [ "${HAS_CROP}" != "True" -a -f "${xmp_file}" ]; then
-			e_warning "$(printf "Image '%s' itself has no CRS crop data, use XMP sidecar instead: %s\n" "${test_file}" "${xmp_file}")"
+			e_warning "$(printf "Image '%s' itself has no CRS crop data, use XMP sidecar instead: %s\n" "${work_file}" "${xmp_file}")"
 			HAS_CROP=$(exiftool -s -s -s -HasCrop "${xmp_file}")
-			test_file="${xmp_file}"
+			work_file="${xmp_file}"
 		fi;
 
 		if [ "${HAS_CROP}" != "True" ]; then
-			e_warning "$(printf "No CRS crop data available for '%s'.\n" "${test_file}")"
+			e_warning "$(printf "No CRS crop data available for '%s'.\n" "${work_file}")"
 			continue
 		fi
 
@@ -118,16 +118,16 @@ function main {
         # Generate Output
         # ---------------------------------------
 
-		e_info "${test_file}"
+		e_info "${work_file}"
 		printf "HasCrop: %s\n"    "${HAS_CROP}"
-		printf "CropTop: %s\n"    "$(exiftool -s -s -s -CropTop "${test_file}")"
-		printf "CropLeft: %s\n"   "$(exiftool -s -s -s -CropLeft "${test_file}")"
-		printf "CropBottom: %s\n" "$(exiftool -s -s -s -CropBottom "${test_file}")"
-		printf "CropRight: %s\n"  "$(exiftool -s -s -s -CropRight "${test_file}")"
-		printf "CropAngle: %s\n"  "$(exiftool -s -s -s -CropAngle "${test_file}")"
-		printf "CropWidth: %s\n"  "$(exiftool -s -s -s -CropWidth "${test_file}")"
-		printf "CropHeight: %s\n" "$(exiftool -s -s -s -CropHeight "${test_file}")"
-		printf "CropUnits: %s\n"  "$(exiftool -s -s -s -CropUnits "${test_file}")"
+		printf "CropTop: %s\n"    "$(exiftool -s -s -s -CropTop "${work_file}")"
+		printf "CropLeft: %s\n"   "$(exiftool -s -s -s -CropLeft "${work_file}")"
+		printf "CropBottom: %s\n" "$(exiftool -s -s -s -CropBottom "${work_file}")"
+		printf "CropRight: %s\n"  "$(exiftool -s -s -s -CropRight "${work_file}")"
+		printf "CropAngle: %s\n"  "$(exiftool -s -s -s -CropAngle "${work_file}")"
+		printf "CropWidth: %s\n"  "$(exiftool -s -s -s -CropWidth "${work_file}")"
+		printf "CropHeight: %s\n" "$(exiftool -s -s -s -CropHeight "${work_file}")"
+		printf "CropUnits: %s\n"  "$(exiftool -s -s -s -CropUnits "${work_file}")"
 
 	done
 
