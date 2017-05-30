@@ -113,6 +113,11 @@ function main {
 			continue
 		fi
 
+
+        # ---------------------------------------
+        # Generate Output
+        # ---------------------------------------
+
 		e_info "${test_file}"
 		printf "HasCrop: %s\n"    "${HAS_CROP}"
 		printf "CropTop: %s\n"    "$(exiftool -s -s -s -CropTop "${test_file}")"
