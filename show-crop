@@ -104,18 +104,18 @@ function main {
         # ---------------------------------------
 
 		local work_file="${INPUT_FILE}"
-		HAS_CROP=$(exiftool -s -s -s -HasCrop "${work_file}")
+		crop_data_available=$(exiftool -s -s -s -HasCrop "${work_file}")
 
 		# If there is no CRS-Crop data available,
 		# check if there is a XMP sidecar file to work with instead
-		if [ "${HAS_CROP}" != "True" -a -f "${xmp_file}" ]; then
+		if [ "${crop_data_available}" != "True" -a -f "${xmp_file}" ]; then
 			e_warning "$(printf "Image '%s' itself has no CRS crop data, use XMP sidecar instead: %s\n" "${work_file}" "${xmp_file}")"
-			HAS_CROP=$(exiftool -s -s -s -HasCrop "${xmp_file}")
+			crop_data_available=$(exiftool -s -s -s -HasCrop "${xmp_file}")
 			work_file="${xmp_file}"
 		fi;
 
 		# Error message
-		if [ "${HAS_CROP}" != "True" ]; then
+		if [ "${crop_data_available}" != "True" ]; then
 			e_warning "$(printf "No CRS crop data available for '%s'.\n" "${work_file}")"
 			continue
 		fi
@@ -126,7 +126,7 @@ function main {
         # ---------------------------------------
 
 		e_info "${work_file}"
-		printf "HasCrop: %s\n"    "${HAS_CROP}"
+		printf "HasCrop: %s\n"    "${crop_data_available}"
 		printf "CropTop: %s\n"    "$(exiftool -s -s -s -CropTop "${work_file}")"
 		printf "CropLeft: %s\n"   "$(exiftool -s -s -s -CropLeft "${work_file}")"
 		printf "CropBottom: %s\n" "$(exiftool -s -s -s -CropBottom "${work_file}")"
