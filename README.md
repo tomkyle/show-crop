@@ -45,6 +45,11 @@ CropHeight:
 CropUnits:
 ```
 
+## Release Notes
+
+### v.1.1.0
+When used on RAW files, its XMP sidecar file will be evaluated instead. The reason is: Since typical RAW files do not carry crop data in themselves, RAW converters will typically put a XMP sidecar file beneath them to store their editing actions like cropping. 
+
 ## Development
 
 ```bash
