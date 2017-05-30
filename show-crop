@@ -92,22 +92,29 @@ function main {
         # ---------------------------------------
         # Filename magic
         # ---------------------------------------
+
         local input_file_extension="${INPUT_FILE##*.}";
         local input_file_basename="${INPUT_FILE%.$input_file_extension}"
         input_file_basename="${input_file_basename##*/}" # remove trailing slash
 		local xmp_file="${input_file_basename}.xmp"
 
+
+        # ---------------------------------------
+        # Find out which file to use
+        # ---------------------------------------
+
 		local work_file="${INPUT_FILE}"
+		HAS_CROP=$(exiftool -s -s -s -HasCrop "${work_file}")
 
 		# If there is no CRS-Crop data available,
 		# check if there is a XMP sidecar file to work with instead
-		HAS_CROP=$(exiftool -s -s -s -HasCrop "${work_file}")
 		if [ "${HAS_CROP}" != "True" -a -f "${xmp_file}" ]; then
 			e_warning "$(printf "Image '%s' itself has no CRS crop data, use XMP sidecar instead: %s\n" "${work_file}" "${xmp_file}")"
 			HAS_CROP=$(exiftool -s -s -s -HasCrop "${xmp_file}")
 			work_file="${xmp_file}"
 		fi;
 
+		# Error message
 		if [ "${HAS_CROP}" != "True" ]; then
 			e_warning "$(printf "No CRS crop data available for '%s'.\n" "${work_file}")"
 			continue
